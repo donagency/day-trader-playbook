@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Indicators - Professional NQ Market Analysis Tools | DayTraderPlaybook</title>
+    <meta name="description" content="Learn about the professional trading indicators used in daily NQ futures analysis. Master market breadth, sentiment, and momentum indicators for better trading decisions.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9fafb;
+            line-height: 1.6;
+        }
+        
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        
+        .header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 4rem;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #111827;
+        }
+        
+        .nav {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav a {
+            color: #374151;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .nav a:hover, .nav a.active {
+            color: #2563eb;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            position: relative;
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 30% 40%, rgba(37, 99, 235, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .hero-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.3;
+        }
+        
+        .hero p {
+            font-size: 1.25rem;
+            color: #cbd5e1;
+            max-width: 42rem;
+            margin: 0 auto;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+        
+        /* Main Container */
+        .main-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 3rem 1rem;
+        }
+        
+        /* Filter Section */
+        .filter-section {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+        
+        .filter-tabs {
+            display: inline-flex;
+            background: white;
+            border-radius: 0.75rem;
+            padding: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #f1f5f9;
+            gap: 0.25rem;
+        }
+        
+        .filter-tab {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: transparent;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #6b7280;
+            transition: all 0.2s;
+            font-size: 0.9375rem;
+        }
+        
+        .filter-tab:hover {
+            color: #374151;
+            background: #f8fafc;
+        }
+        
+        .filter-tab.active {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
+        }
+        
+        /* Indicators Grid */
+        .indicators-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .indicator-card {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #f1f5f9;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .indicator-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+            border-color: #e2e8f0;
+        }
+        
+        .indicator-header {
+            padding: 2rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .indicator-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #eff6ff;
+            color: #1e40af;
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+        
+        .indicator-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+        
+        .indicator-description {
+            color: #64748b;
+            line-height: 1.6;
+            font-size: 0.9375rem;
+        }
+        
+        .indicator-body {
+            padding: 2rem;
+        }
+        
+        .indicator-features {
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+        
+        .feature-icon {
+            width: 16px;
+            height: 16px;
+            color: #059669;
+            flex-shrink: 0;
+        }
+        
+        .indicator-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid #f1f5f9;
+        }
+        
+        .complexity-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .complexity-beginner {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .complexity-intermediate {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .complexity-advanced {
+            background: #fecaca;
+            color: #991b1b;
+        }
+        
+        .learn-more-btn {
+            color: #2563eb;
+            font-weight: 500;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+        
+        .learn-more-btn:hover {
+            color: #1d4ed8;
+        }
+        
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border: 1px solid #bfdbfe;
+            border-radius: 1rem;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+        
+        .cta-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+        
+        .cta-description {
+            color: #64748b;
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+            max-width: 32rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .cta-button {
+            background: #2563eb;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            font-size: 1.125rem;
+        }
+        
+        .cta-button:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+        
+        /* Footer */
+        .footer {
+            background: #111827;
+            color: white;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+        
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .footer-text {
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1023px) {
+            .indicators-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav {
+                display: none;
+            }
+            
+            .hero h2 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1.125rem;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            .filter-tabs {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .filter-tab {
+                text-align: center;
+            }
+            
+            .indicator-header,
+            .indicator-body {
+                padding: 1.5rem;
+            }
+            
+            .cta-section {
+                padding: 2rem 1.5rem;
+            }
+            
+            .cta-title {
+                font-size: 1.5rem;
+            }
+            
+            .cta-description {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                    <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"></polyline>
+                </svg>
+                <h1>DayTraderPlaybook</h1>
+            </div>
+            <nav class="nav">
+                <a href="/">Day Trading</a>
+                <a href="/indicators" class="active">Indicators</a>
+                <a href="/contact">Get in Touch</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h2>Professional Trading Indicators</h2>
+            <p>Master the market breadth and sentiment indicators used in professional NQ futures analysis. Learn how each indicator works and how to apply them in your daily trading.</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-tabs">
+                <button class="filter-tab active" onclick="filterIndicators('all')">All Indicators</button>
+                <button class="filter-tab" onclick="filterIndicators('breadth')">Market Breadth</button>
+                <button class="filter-tab" onclick="filterIndicators('sentiment')">Sentiment</button>
+                <button class="filter-tab" onclick="filterIndicators('momentum')">Momentum</button>
+                <button class="filter-tab" onclick="filterIndicators('volume')">Volume</button>
+            </div>
+        </div>
+
+        <!-- Indicators Grid -->
+        <div class="indicators-grid" id="indicatorsGrid">
+            <!-- Cumulative TICK -->
+            <div class="indicator-card" data-category="breadth sentiment" onclick="window.location.href='/indicators/cumulative-tick'">
+                <div class="indicator-header">
+                    <div class="indicator-category">
+                        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 3v18h18"/>
+                            <path d="M7 12l4-4 4 4 6-6"/>
+                        </svg>
+                        Market Breadth
+                    </div>
+                    <h3 class="indicator-title">Cumulative TICK Indicator</h3>
+                    <p class="indicator-description">
+                        The foundation of market sentiment analysis. This real-time cumulative indicator tracks NYSE TICK readings to reveal underlying market bias and momentum, essential for NQ breakout confirmation.
+                    </p>
+                </div>
+                <div class="indicator-body">
+                    <div class="indicator-features">
+                        <div class="feature-title">Key Applications</div>
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                Identify market sentiment extremes
+                            </div>
+                            <div class="feature-item">
+                                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                Confirm NQ breakout setups
+                            </div>
+                            <div class="feature-item">
+                                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                Detect momentum divergences
+                            </div>
+                        </div>
+                    </div>
+                    <div class="indicator-footer">
+                        <span class="complexity-badge complexity-intermediate">
+                            <span style="width: 6px; height: 6px; background: currentColor; border-radius: 50%;"></span>
+                            Intermediate
+                        </span>
+                        <a href="/indicators/cumulative-tick" class="learn-more-btn">
+                            Learn More
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M7 17l10-10M17 7H7v10"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advance/Decline Line -->
+            <div class="indicator-card" data-category="breadth" onclick="window.location.href='/indicators/advance-decline-line'">
+                <div class="indicator-header">
+                    <div class="indicator-category">
+                        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 3v18h18"/>
+                            <path d="M7 16l4-8 4 8 6-12"/>
+                        </svg>
+                        Market Breadth
+                    </div>
+                    <h3 class="indicator-title">Advance/Decline Line Analysis</h3>
+                    <p class="indicator-description">
+                        The classic measure of market breadth. Track the cumulative difference between advancing and declining stocks to assess the internal health and strength of market moves.
+                    </p>
+                </div>
+                <div class="indicator-body">
+                    <div class="indicator-features">
+                        <div class="feature-title">Key Applications</div>
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                Measure market participation
+                            </div>
+                            <div class="feature-item">
+                                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                Identify breadth divergences
+                            </div>
+                            <div class="feature-item">
+                                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                Assess trend sustainability
+                            </div>
+                        </div>
+                    </div>
+                    <div class="indicator-footer">
+                        <span class="complexity-badge complexity-beginner">
+                            <span style="width: 6px; height: 6px; background: currentColor; border-radius: 50%;"></span>
+                            Beginner
+                        </span>
+                        <a href="/indicators/advance-decline-line" class="learn-more-btn">
+                            Learn More
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M7 17l10-10M17 7H7v10"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Volume Participation -->
+            <div class="indicator-card" data-category="volume breadth" onclick="window.location.href='/indicators/volume-participation'">
+                <div class="indicator-header">
+                    <div class="indicator-category">
+                        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 3v18h18"/>
+                            <rect x="4" y="7" width="3" height="10"/>
+                            <rect x="10" y="12" width="3" height="6"/>
+                            <rect x="16" y="5" width="3" height="13"/>
+                        </svg>
+                        Volume Analysis
+                    </div>
+                    <h3 class="indicator-title">Volume Participation Analysis</h3>
+                    <p class="indicator-description">
+                        Beyond simple breadth - analyze volume flow into advancing versus declining stocks. This indicator reveals the quality and conviction behind market moves.
+                    </p>
+                </div>
+                <div class="indicator-body">
+                    <div class="indicator-features">
+                        <div class="feature-title">Key Applications</div>
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                Assess move quality
+                            </div>
+                            <div class="feature-item">
+                                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                Identify volume divergences
+                            </div>
+                            <div class="feature-item">
+                                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                Confirm trend strength
+                            </div>
+                        </div>
+                    </div>
+                    <div class="indicator-footer">
+                        <span class="complexity-badge complexity-intermediate">
+                            <span style="width: 6px; height: 6px; background: currentColor; border-radius: 50%;"></span>
+                            Intermediate
+                        </span>
+                        <a href="/indicators/volume-participation" class="learn-more-btn">
+                            Learn More
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M7 17l10-10M17 7H7v10"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tech Leaders Above MAs -->
+            <div class="indicator-card" data-category="momentum" onclick="window.location.href='/indicators/tech-leaders-moving-averages'">
+                <div class="indicator-header">
+                    <div class="indicator-category">
+                        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 3v18h18"/>
+                            <path d="M8 17l4-10 4 10"/>
+                        </svg>
+                        Momentum
+                    </div>
+                    <h3 class="indicator-title">Tech Leaders Above Moving Averages</h3>
+                    <p class="indicator-description">
+                        Track the percentage of technology sector leaders trading above key moving averages. Essential for gauging NQ sector strength and directional bias.
+                    </p>
+                </div>
+                <div class="indicator-body">
+                    <div class="indicator-features">
+                        <div class="feature-title">Key Applications</div>
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                Gauge tech sector health
+                            </div>
+                            <div class="feature-item">
+                                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                Predict NQ direction
+                            </div>
+                            <div class="feature-item">
+                                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                Identify rotation signals
+                            </div>
+                        </div>
+                    </div>
+                    <div class="indicator-footer">
+                        <span class="complexity-badge complexity-intermediate">
+                            <span style="width: 6px; height: 6px; background: currentColor; border-radius: 50%;"></span>
+                            Intermediate
+                        </span>
+                        <a href="/indicators/tech-leaders-moving-averages" class="learn-more-btn">
+                            Learn More
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M7 17l10-10M17 7H7v10"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Thrust Indicators -->
+            <div class="indicator-card" data-category="momentum volume" onclick="window.location.href='/indicators/market-thrust-indicators'">
+                <div class="indicator-header">
+                    <div class="indicator-category">
+                        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 3v18h18"/>
+                            <path d="M7 8l4-4 4 4 6-6"/>
+                            <circle cx="11" cy="11" r="2"/>
+                        </svg>
+                        Momentum
+                    </div>
+                    <h3 class="indicator-title">Market Thrust Indicators</h3>
+                    <p class="indicator-description">
+                        Advanced composite indicators measuring explosive price and volume expansion. Perfect for identifying powerful momentum shifts and breakout acceleration in NQ futures.
+                    </p>
+                </div>
+                <div class="indicator-body">
+                    <div class="indicator-features">
+                        <div class="feature-title">Key Applications</div>
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                Detect explosive moves
+                            </div>
+                            <div class="feature-item">
+                                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                Time momentum entries
+                            </div>
+                            <div class="feature-item">
+                                <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                                Identify thrust patterns
+                            </div>
+                        </div>
+                    </div>
+                    <div class="indicator-footer">
+                        <span class="complexity-badge complexity-advanced">
+                            <span style="width: 6px; height: 6px; background: currentColor; border-radius: 50%;"></span>
+                            Advanced
+                        </span>
+                        <a href="/indicators/market-thrust-indicators" class="learn-more-btn">
+                            Learn More
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M7 17l10-10M17 7H7v10"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <h2 class="cta-title">Master These Indicators in Your Trading</h2>
+            <p class="cta-description">
+                See how these professional indicators are applied in real-time NQ analysis through daily market breakdowns and trading setups.
+            </p>
+            <a href="/" class="cta-button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                </svg>
+                View Daily Analysis
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2">
+                    <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"></polyline>
+                </svg>
+                <span style="font-size: 1.125rem; font-weight: bold;">DayTraderPlaybook</span>
+            </div>
+            <div class="footer-text">
+                © 2025 DayTraderPlaybook. Professional NQ trading insights.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function filterIndicators(category) {
+            const cards = document.querySelectorAll('.indicator-card');
+            const tabs = document.querySelectorAll('.filter-tab');
+            
+            // Update active tab
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Filter cards
+            cards.forEach(card => {
+                if (category === 'all') {
+                    card.style.display = 'block';
+                } else {
+                    const cardCategories = card.getAttribute('data-category');
+                    if (cardCategories.includes(category)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                }
+            });
+        }
+        
+        // Add smooth scroll behavior for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Add entrance animations on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all indicator cards
+        document.querySelectorAll('.indicator-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>

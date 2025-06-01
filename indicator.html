@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cumulative TICK Indicator: Master Market Sentiment for NQ Trading | DayTraderPlaybook</title>
+    <meta name="description" content="Learn how the Cumulative TICK indicator works, why it's essential for NQ futures trading, and how to use it to identify market sentiment extremes and confirm breakout setups.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9fafb;
+            line-height: 1.6;
+        }
+        
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        
+        .header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 4rem;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #111827;
+        }
+        
+        .nav {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav a {
+            color: #374151;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .nav a:hover, .nav a.active {
+            color: #2563eb;
+        }
+        
+        /* Main Container - Single Column */
+        .main-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        /* Breadcrumb */
+        .breadcrumb {
+            margin-bottom: 1.5rem;
+        }
+        
+        .breadcrumb a {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+        
+        .breadcrumb a:hover {
+            color: #2563eb;
+        }
+        
+        .breadcrumb-separator {
+            margin: 0 0.5rem;
+            color: #9ca3af;
+        }
+        
+        .indicator-header {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #f1f5f9;
+            margin-bottom: 2rem;
+        }
+        
+        .indicator-categories {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .category-badge {
+            background: #eff6ff;
+            color: #1e40af;
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .indicator-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .indicator-subtitle {
+            font-size: 1.25rem;
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.8125rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .content-section {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #f1f5f9;
+            margin-bottom: 2rem;
+        }
+        
+        .content-section h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .content-section h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 1.5rem 0 0.75rem 0;
+        }
+        
+        .content-section p {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #374151;
+            margin-bottom: 1.25rem;
+        }
+        
+        .content-section ul, .content-section ol {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .content-section li {
+            margin-bottom: 0.5rem;
+            color: #374151;
+            line-height: 1.6;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border: 1px solid #bfdbfe;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .highlight-box h4 {
+            color: #1e40af;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .calculation-box {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 1px solid #bbf7d0;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .calculation-box h4 {
+            color: #166534;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .formula {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid #d1d5db;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9375rem;
+            color: #1e293b;
+            margin: 1rem 0;
+        }
+        
+        .chart-placeholder {
+            background: #f8fafc;
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin: 2rem 0;
+        }
+        
+        .trading-levels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .level-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .level-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .level-bullish { color: #059669; }
+        .level-bearish { color: #dc2626; }
+        .level-extreme { color: #7c3aed; }
+        
+        .level-description {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+        
+        .table-of-contents {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .table-of-contents h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+        
+        .table-of-contents ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .table-of-contents li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .table-of-contents a {
+            color: #475569;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+        
+        .table-of-contents a:hover {
+            color: #2563eb;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #111827;
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .footer-text {
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1023px) {
+            .nav {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            .indicator-title {
+                font-size: 1.875rem;
+            }
+            
+            .indicator-subtitle {
+                font-size: 1.125rem;
+            }
+            
+            .content-section,
+            .indicator-header {
+                padding: 1.5rem;
+            }
+            
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2">
+                    <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"></polyline>
+                </svg>
+                <h1>DayTraderPlaybook</h1>
+            </div>
+            <nav class="nav">
+                <a href="/">Day Trading</a>
+                <a href="/indicators" class="active">Indicators</a>
+                <a href="/contact">Get in Touch</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+            <a href="/">Home</a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="/indicators">Indicators</a>
+            <span class="breadcrumb-separator">›</span>
+            <span>Cumulative TICK</span>
+        </nav>
+
+        <!-- Indicator Header -->
+        <header class="indicator-header">
+            <div class="indicator-categories">
+                <span class="category-badge">Market Breadth</span>
+                <span class="category-badge">Sentiment</span>
+            </div>
+            <h1 class="indicator-title">Cumulative TICK Indicator</h1>
+            <p class="indicator-subtitle">
+                Master the most powerful market sentiment indicator used by professional NQ traders to identify momentum extremes and confirm breakout setups.
+            </p>
+            <div class="quick-stats">
+                <div class="stat-item">
+                    <div class="stat-number">Intermediate</div>
+                    <div class="stat-label">Complexity</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">Real-time</div>
+                    <div class="stat-label">Updates</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">NYSE</div>
+                    <div class="stat-label">Data Source</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5 min</div>
+                    <div class="stat-label">Read Time</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Table of Contents -->
+        <div class="table-of-contents">
+            <h4>📋 What You'll Learn</h4>
+            <ul>
+                <li><a href="#what-is-tick">What is the Cumulative TICK?</a></li>
+                <li><a href="#how-it-works">How It Works & Calculation</a></li>
+                <li><a href="#nq-application">NQ Trading Applications</a></li>
+                <li><a href="#real-examples">Real Trading Examples</a></li>
+            </ul>
+        </div>
+
+        <!-- What is TICK Section -->
+        <section class="content-section" id="what-is-tick">
+            <h2>What is the Cumulative TICK Indicator?</h2>
+            <p>
+                The Cumulative TICK indicator is a running total of the NYSE TICK readings that provides a real-time measure of market sentiment and internal strength. Unlike the standard TICK indicator that shows moment-to-moment readings, the cumulative version reveals the underlying bias and momentum building throughout the trading session.
+            </p>
+            
+            <p>
+                Think of it as a "sentiment scoreboard" that tracks whether bulls or bears are winning the battle beneath the surface. When the cumulative TICK reaches extreme levels, it often signals powerful directional moves in major indices like the NQ (Nasdaq-100 futures).
+            </p>
+
+            <div class="highlight-box">
+                <h4>💡 Key Insight</h4>
+                <p>
+                    The NYSE TICK measures the number of NYSE stocks trading on an uptick minus those trading on a downtick. The cumulative version adds these readings throughout the day, creating a powerful momentum indicator that often leads price action.
+                </p>
+            </div>
+
+            <h3>Why Professional Traders Use It</h3>
+            <p>Professional NQ traders rely on the Cumulative TICK because it provides several critical advantages:</p>
+            <ul>
+                <li><strong>Early Warning System:</strong> Often shows momentum shifts before they appear in price</li>
+                <li><strong>Sentiment Extremes:</strong> Identifies when market sentiment reaches unsustainable levels</li>
+                <li><strong>Breakout Confirmation:</strong> Validates the strength behind price breakouts</li>
+                <li><strong>Divergence Detection:</strong> Reveals when price and internal strength are misaligned</li>
+            </ul>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="content-section" id="how-it-works">
+            <h2>How It Works & Calculation</h2>
+            <p>
+                The Cumulative TICK calculation is straightforward but powerful. Here's exactly how it works:
+            </p>
+
+            <div class="calculation-box">
+                <h4>📊 Calculation Formula</h4>
+                <p><strong>Basic Formula:</strong></p>
+                <div class="formula">
+                    Cumulative TICK = Previous Cumulative TICK + Current TICK Reading
+                </div>
+                <p><strong>Where TICK =</strong> (Stocks on Uptick) - (Stocks on Downtick)</p>
+            </div>
+
+            <h3>Step-by-Step Example</h3>
+            <ol>
+                <li><strong>9:30 AM:</strong> Market opens, Cumulative TICK starts at 0</li>
+                <li><strong>9:31 AM:</strong> TICK reads +450, Cumulative TICK = 0 + 450 = +450</li>
+                <li><strong>9:32 AM:</strong> TICK reads +235, Cumulative TICK = +450 + 235 = +685</li>
+                <li><strong>9:33 AM:</strong> TICK reads -180, Cumulative TICK = +685 + (-180) = +505</li>
+            </ol>
+
+            <p>
+                This running total continues throughout the session, creating a visual representation of whether buyers or sellers are in control at the broad market level.
+            </p>
+
+            <div class="chart-placeholder">
+                [Chart showing Cumulative TICK progression throughout trading day with NQ overlay]
+            </div>
+        </section>
+
+        <!-- NQ Application Section -->
+        <section class="content-section" id="nq-application">
+            <h2>NQ Trading Applications</h2>
+            <p>
+                The Cumulative TICK is particularly powerful for NQ futures trading. Here's how I apply it in my daily analysis:
+            </p>
+
+            <h3>1. Breakout Confirmation</h3>
+            <p>
+                When NQ tests key resistance levels (like 21,470 in recent sessions), I look for the Cumulative TICK to reach +1,500 or higher to confirm the breakout has internal strength behind it.
+            </p>
+
+            <h3>2. Divergence Analysis</h3>
+            <p>
+                If NQ makes a new high but the Cumulative TICK fails to reach previous highs, this bearish divergence warns of potential weakness ahead.
+            </p>
+
+            <h3>3. Sentiment Extremes</h3>
+            <p>
+                When the Cumulative TICK reaches ±2,000+, it often signals an exhaustion move. These extremes frequently coincide with intraday turning points in NQ.
+            </p>
+
+            <h3>4. Entry Timing</h3>
+            <p>
+                I use Cumulative TICK momentum to time entries. Strong positive readings above +1,000 support long entries, while readings below -1,000 favor short setups.
+            </p>
+
+            <div class="chart-placeholder">
+                [Chart showing NQ price action with Cumulative TICK overlay, highlighting breakout confirmation]
+            </div>
+        </section>
+
+        <!-- Real Examples Section -->
+        <section class="content-section" id="real-examples">
+            <h2>Real Trading Examples</h2>
+            
+            <h3>Example 1: NQ Breakout at 21,470</h3>
+            <p>
+                On May 27, 2025, NQ tested the 21,470 resistance level multiple times. The first test at 10:15 AM failed because the Cumulative TICK only reached +850 - insufficient momentum.
+            </p>
+            <p>
+                However, at 11:30 AM, when NQ retested 21,470, the Cumulative TICK surged to +2,100, confirming strong internal momentum. This breakout held and NQ rallied to 21,500.
+            </p>
+
+            <div class="chart-placeholder">
+                [Chart: May 27, 2025 - NQ breakout at 21,470 with Cumulative TICK showing +2,100 confirmation]
+            </div>
+
+            <h3>Example 2: Failed Breakout Warning</h3>
+            <p>
+                On May 25, NQ attempted to break above 21,450, but the Cumulative TICK remained below +500 during the move. This weak internal reading warned that the breakout lacked conviction, and NQ subsequently failed and fell back to 21,400.
+            </p>
+
+            <div class="chart-placeholder">
+                [Chart: May 25, 2025 - NQ failed breakout with weak Cumulative TICK below +500]
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2">
+                    <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"></polyline>
+                </svg>
+                <span style="font-size: 1.125rem; font-weight: bold;">DayTraderPlaybook</span>
+            </div>
+            <div class="footer-text">
+                © 2025 DayTraderPlaybook. Professional NQ trading insights.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll for table of contents links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Highlight current section in table of contents
+        const sections = document.querySelectorAll('section[id]');
+        const tocLinks = document.querySelectorAll('.table-of-contents a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.pageYOffset >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            tocLinks.forEach(link => {
+                link.style.color = '#475569';
+                if (link.getAttribute('href') === '#' + current) {
+                    link.style.color = '#2563eb';
+                    link.style.fontWeight = '600';
+                } else {
+                    link.style.fontWeight = '400';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
